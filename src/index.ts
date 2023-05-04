@@ -16,6 +16,12 @@ What do we need ?
 - filenames of all Workers used
 
  */
+const defaultPort = 8080;
+const defaultIp: Ip = '*';
+const filenameCapnpGenerated = 'my-config.capnp';
+const numberOfWorkersToCreate = 3;
+const workerFilename = 'worker2/index.js';
+
 const moduleListFactory = (name: string, esModule: string): ModuleList => [{name, esModule}];
 
 const workerdModuleFactory = (name: string, file: string, compatibilityDate: CompatibilityDate): WorkerdModule => ({
@@ -49,7 +55,7 @@ const createSocket = (defaultPort: number, defaultIp: Ip) => (workerCapnp: Capnp
 	`(name = "http",address = "${defaultIp}:${defaultPort++}",http = (),service = "${workerCapnp.name}")`;
 
 const socketsCapnpify = (capnpWorkerNearName: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip): string =>
-	`sockets = [${capnpWorkerNearName.map(createSocket(defaultPort, defaultIp)).join('')}]`;
+	`sockets = [${capnpWorkerNearName.map(createSocket(defaultPort, defaultIp)).join(',')}]`;
 
 const configCapnpify = (workerCapnpNearNames: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip) =>
 	`const config :Workerd.Config = (${servicesCapnpify(workerCapnpNearNames)}${socketsCapnpify(workerCapnpNearNames, defaultPort, defaultIp)});`;
@@ -66,11 +72,10 @@ const capnpGenerator = (defaultPort: number, defaultIp: Ip, filenames: string[])
 	return finalCapnp;
 };
 
-const filenames = Array.from({length: 1000}, () => 'build/index.js');
+const filenames = Array.from({length: numberOfWorkersToCreate}, () => workerFilename);
 
-writeFile(
-	'my-config.capnp',
-	capnpGenerator(8080, '*', filenames),
+writeFile(filenameCapnpGenerated,
+	capnpGenerator(defaultPort, defaultIp, filenames),
 	err => {
 		console.log(err);
 	});
