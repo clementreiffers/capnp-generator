@@ -56,7 +56,7 @@ const configCapnpify = (workerCapnpNearNames: CapnpWorkerNearName[], defaultPort
 	const services = servicesCapnpify(workerCapnpNearNames);
 	const sockets = socketsCapnpify(workerCapnpNearNames, defaultPort, defaultIp);
 
-	return `const config :Workerd.Config = (${services}${sockets})`;
+	return `const config :Workerd.Config = (${services}${sockets});`;
 };
 
 const main = (defaultPort: number, defaultIp: Ip, filenames: string[]) => {
@@ -68,7 +68,10 @@ const main = (defaultPort: number, defaultIp: Ip, filenames: string[]) => {
 	const workerCapnpNearNames = workerdCapnpify(workers);
 	const config = configCapnpify(workerCapnpNearNames, defaultPort, defaultIp);
 
-	console.log(config);
+	const finalCapnp
+		= `using Workerd = import "/workerd/workerd.capnp"; ${config} ${workerCapnpNearNames.map(w => w.capnp).join('')}`;
+
+	return finalCapnp;
 };
 
 main(8080, '*', ['index1.js', 'index2.js', 'index3.js']);
