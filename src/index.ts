@@ -24,18 +24,26 @@ const workerdModuleFactory = (name: string, file: string, compatibilityDate: Com
 
 const moduleCapnpify = (module: Module): string => `(name = ${module.name}, esModule = embed ${module.esModule})`;
 
-const moduleListCapnpify = (moduleList: ModuleList): string => 'modules = [' + moduleList.map(moduleCapnpify).join('') + ']';
+const moduleListCapnpify = (moduleList: ModuleList): string => `modules = [${moduleList.map(moduleCapnpify).join('')}]`;
 
 const workerdCapnpify = (workers: WorkerdModule[]): CapnpWorkerNearName[] => {
 	const capnpFormatNearWorkerName: CapnpWorkerNearName[] = [];
 	for (const worker of workers) {
 		const name = `w${Date.now()}`;
-		const capnp = `const ${name} :Workerd.Worker = (${moduleListCapnpify(worker.modules)},compatibilityDate = ${worker.compatibilityDate});`;
+		const capnp = createWorker(name, worker);
 		capnpFormatNearWorkerName.push({name, capnp});
 	}
 
 	return capnpFormatNearWorkerName;
 };
+
+const createService = (workerCapnp: CapnpWorkerNearName): string => `(name="${workerCapnp.name}", worker=.${workerCapnp.name}),`;
+
+const createWorker = (name: string, worker: WorkerdModule): string =>
+	`const ${name} :Workerd.Worker = (${moduleListCapnpify(worker.modules)},compatibilityDate = ${worker.compatibilityDate});`;
+
+const servicesCapnpify = (capnpWorkerNearName: CapnpWorkerNearName[]): string =>
+	`services = [${capnpWorkerNearName.map(createService).join('')}],`;
 
 const main = (defaultPort: number, defaultIpAddress: Ip, filenames: string[]) => {
 	const workers: WorkerdModule[] = [];
@@ -43,7 +51,10 @@ const main = (defaultPort: number, defaultIpAddress: Ip, filenames: string[]) =>
 		workers.push(workerdModuleFactory('worker', file, '2023-02-28'));
 	}
 
-	console.log(workerdCapnpify(workers));
+	const workerCapnpNearNames = workerdCapnpify(workers);
+	const services = servicesCapnpify(workerCapnpNearNames);
+
+	console.log(services);
 };
 
 main(8080, '*', ['index1.js', 'index2.js', 'index3.js']);
