@@ -26,16 +26,12 @@ const moduleCapnpify = (module: Module): string => `(name = ${module.name}, esMo
 
 const moduleListCapnpify = (moduleList: ModuleList): string => `modules = [${moduleList.map(moduleCapnpify).join('')}]`;
 
-const workerdCapnpify = (workers: WorkerdModule[]): CapnpWorkerNearName[] => {
-	const capnpFormatNearWorkerName: CapnpWorkerNearName[] = [];
-	for (const worker of workers) {
+const workerdCapnpify = (workers: WorkerdModule[]): CapnpWorkerNearName[] =>
+	workers.map((worker: WorkerdModule) => {
 		const name = `w${Date.now()}`;
 		const capnp = createWorker(name, worker);
-		capnpFormatNearWorkerName.push({name, capnp});
-	}
-
-	return capnpFormatNearWorkerName;
-};
+		return {name, capnp};
+	}) satisfies CapnpWorkerNearName[];
 
 const createService = (workerCapnp: CapnpWorkerNearName): string =>
 	`(name="${workerCapnp.name}", worker=.${workerCapnp.name}),`;
@@ -52,18 +48,11 @@ const createSocket = (defaultPort: number, defaultIp: Ip) => (workerCapnp: Capnp
 const socketsCapnpify = (capnpWorkerNearName: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip): string =>
 	`sockets = [${capnpWorkerNearName.map(createSocket(defaultPort, defaultIp)).join('')}]`;
 
-const configCapnpify = (workerCapnpNearNames: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip) => {
-	const services = servicesCapnpify(workerCapnpNearNames);
-	const sockets = socketsCapnpify(workerCapnpNearNames, defaultPort, defaultIp);
-
-	return `const config :Workerd.Config = (${services}${sockets});`;
-};
+const configCapnpify = (workerCapnpNearNames: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip) =>
+	`const config :Workerd.Config = (${servicesCapnpify(workerCapnpNearNames)}${socketsCapnpify(workerCapnpNearNames, defaultPort, defaultIp)});`;
 
 const main = (defaultPort: number, defaultIp: Ip, filenames: string[]) => {
-	const workers: WorkerdModule[] = [];
-	for (const file of filenames) {
-		workers.push(workerdModuleFactory('worker', file, '2023-02-28'));
-	}
+	const workers = filenames.map((file: string) => workerdModuleFactory('worker', file, '2023-02-28'));
 
 	const workerCapnpNearNames = workerdCapnpify(workers);
 	const config = configCapnpify(workerCapnpNearNames, defaultPort, defaultIp);
@@ -74,4 +63,4 @@ const main = (defaultPort: number, defaultIp: Ip, filenames: string[]) => {
 	return finalCapnp;
 };
 
-main(8080, '*', ['index1.js', 'index2.js', 'index3.js']);
+console.log(main(8080, '*', ['index1.js', 'index2.js', 'index3.js']));
