@@ -1,0 +1,20 @@
+{
+  "name": "capnp-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": ">=5.57.0",
+    "@typescript-eslint/parser": ">=5.57.0",
+    "eslint": ">=8.0.0",
+    "eslint-config-xo": "^0.43.1",
+    "eslint-config-xo-typescript": "^0.57.0"
+  },
+  "scripts": {
+    "start": "npx ts-node src/index.ts",
+    "dev": "npx nodemon src/index.ts"
+  }
+}
