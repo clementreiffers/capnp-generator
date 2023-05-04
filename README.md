@@ -12,5 +12,3 @@ you can type in the terminal `yarn start`
 ## Run it in Dev mode
 
 you can type in the terminal `yarn dev`
-# capnp-generator
-# capnp-generator
