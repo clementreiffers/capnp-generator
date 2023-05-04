@@ -37,7 +37,8 @@ const workerdCapnpify = (workers: WorkerdModule[]): CapnpWorkerNearName[] => {
 	return capnpFormatNearWorkerName;
 };
 
-const createService = (workerCapnp: CapnpWorkerNearName): string => `(name="${workerCapnp.name}", worker=.${workerCapnp.name}),`;
+const createService = (workerCapnp: CapnpWorkerNearName): string =>
+	`(name="${workerCapnp.name}", worker=.${workerCapnp.name}),`;
 
 const createWorker = (name: string, worker: WorkerdModule): string =>
 	`const ${name} :Workerd.Worker = (${moduleListCapnpify(worker.modules)},compatibilityDate = ${worker.compatibilityDate});`;
@@ -45,16 +46,29 @@ const createWorker = (name: string, worker: WorkerdModule): string =>
 const servicesCapnpify = (capnpWorkerNearName: CapnpWorkerNearName[]): string =>
 	`services = [${capnpWorkerNearName.map(createService).join('')}],`;
 
-const main = (defaultPort: number, defaultIpAddress: Ip, filenames: string[]) => {
+const createSocket = (defaultPort: number, defaultIp: Ip) => (workerCapnp: CapnpWorkerNearName) =>
+	`(name="http",address="${defaultIp}:${defaultPort++}",http=(),service="${workerCapnp.name}")`;
+
+const socketsCapnpify = (capnpWorkerNearName: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip): string =>
+	`sockets = [${capnpWorkerNearName.map(createSocket(defaultPort, defaultIp)).join('')}]`;
+
+const configCapnpify = (workerCapnpNearNames: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip) => {
+	const services = servicesCapnpify(workerCapnpNearNames);
+	const sockets = socketsCapnpify(workerCapnpNearNames, defaultPort, defaultIp);
+
+	return `const config :Workerd.Config = (${services}${sockets})`;
+};
+
+const main = (defaultPort: number, defaultIp: Ip, filenames: string[]) => {
 	const workers: WorkerdModule[] = [];
 	for (const file of filenames) {
 		workers.push(workerdModuleFactory('worker', file, '2023-02-28'));
 	}
 
 	const workerCapnpNearNames = workerdCapnpify(workers);
-	const services = servicesCapnpify(workerCapnpNearNames);
+	const config = configCapnpify(workerCapnpNearNames, defaultPort, defaultIp);
 
-	console.log(services);
+	console.log(config);
 };
 
 main(8080, '*', ['index1.js', 'index2.js', 'index3.js']);
