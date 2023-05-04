@@ -27,12 +27,14 @@ const moduleCapnpify = (module: Module): string => `(name = "${module.name}", es
 
 const moduleListCapnpify = (moduleList: ModuleList): string => `modules = [${moduleList.map(moduleCapnpify).join('')}]`;
 
-const workerdCapnpify = (workers: WorkerdModule[]): CapnpWorkerNearName[] =>
-	workers.map((worker: WorkerdModule) => {
-		const name = `w${Date.now()}`;
+const workerdCapnpify = (workers: WorkerdModule[]): CapnpWorkerNearName[] => {
+	let indice = 0;
+	return workers.map((worker: WorkerdModule) => {
+		const name = `i${indice++}`;
 		const capnp = createWorker(name, worker);
 		return {name, capnp};
 	}) satisfies CapnpWorkerNearName[];
+};
 
 const createService = (workerCapnp: CapnpWorkerNearName): string =>
 	`(name = "${workerCapnp.name}", worker = .${workerCapnp.name}),`;
