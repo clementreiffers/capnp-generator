@@ -30,4 +30,6 @@ type Config = {
 	sockets: SocketList;
 };
 
-export type {ModuleList, WorkerdModule, CompatibilityDate, Ip, Module};
+type CapnpWorkerNearName = {name: string; capnp: string};
+
+export type {ModuleList, WorkerdModule, CompatibilityDate, Ip, Module, CapnpWorkerNearName};
