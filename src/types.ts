@@ -32,4 +32,8 @@ type Config = {
 
 type CapnpWorkerNearName = {name: string; capnp: string};
 
-export type {ModuleList, WorkerdModule, CompatibilityDate, Ip, Module, CapnpWorkerNearName};
+type Filename = string | string[];
+
+type FilenameList = Filename[];
+
+export type {ModuleList, WorkerdModule, CompatibilityDate, Ip, Module, CapnpWorkerNearName, Filename, FilenameList};

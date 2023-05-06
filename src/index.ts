@@ -1,6 +1,6 @@
 import {
 	type CapnpWorkerNearName,
-	type CompatibilityDate,
+	type CompatibilityDate, type Filename, type FilenameList,
 	type Ip,
 	type Module,
 	type ModuleList,
@@ -79,7 +79,7 @@ const socketsCapnpify = (capnpWorkerNearName: CapnpWorkerNearName[], defaultPort
 const configCapnpify = (workerCapnpNearNames: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip) =>
 	`const config :Workerd.Config = (${servicesCapnpify(workerCapnpNearNames)}${socketsCapnpify(workerCapnpNearNames, defaultPort, defaultIp)});`;
 
-const capnpGenerator = (defaultPort: number, defaultIp: Ip, filenames: any) => {
+const capnpGenerator = (defaultPort: number, defaultIp: Ip, filenames: string[]) => {
 	const workers = filenames.map((file: string) => workerdModuleFactory('worker', file, '2023-02-28'));
 
 	const workerCapnpNearNames = workerdCapnpify(workers);
@@ -93,7 +93,7 @@ const capnpGenerator = (defaultPort: number, defaultIp: Ip, filenames: any) => {
 
 // Const filenames = Array.from({length: numberOfWorkersToCreate}, () => workerFilename);
 
-const filenames = [['index.mjs', 'index.wasm']];
+const filenames = ['index.mjs', 'index.wasm'];
 
 writeFile(filenameCapnpGenerated,
 	capnpGenerator(defaultPort, defaultIp, filenames),
