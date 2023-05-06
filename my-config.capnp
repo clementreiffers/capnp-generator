@@ -1,1 +1,10 @@
-using Workerd = import "/workerd/workerd.capnp"; const config :Workerd.Config = (services = [(name = "i0", worker = .i0),(name = "i1", worker = .i1),(name = "i2", worker = .i2),],sockets = [(name = "http",address = "*:8080",http = (),service = "i0"),(name = "http",address = "*:8081",http = (),service = "i1"),(name = "http",address = "*:8082",http = (),service = "i2")]); const i0 :Workerd.Worker = (modules = [(name = "worker", esModule = embed "worker2/index.js")],compatibilityDate = "2023-02-28");const i1 :Workerd.Worker = (modules = [(name = "worker", esModule = embed "worker2/index.js")],compatibilityDate = "2023-02-28");const i2 :Workerd.Worker = (modules = [(name = "worker", esModule = embed "worker2/index.js")],compatibilityDate = "2023-02-28");
+using Workerd = import "/workerd/workerd.capnp";
+
+
+const config :Workerd.Config = (
+    services = [(name = "i0", worker = .i0),],
+    sockets = [(name = "http",address = "*:8080",http = (),service = "i0")]);
+
+
+const i0 :Workerd.Worker = (
+    modules = [(name = "worker", esModule = embed "index.mjs,index.wasm")],compatibilityDate = "2023-02-28");

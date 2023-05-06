@@ -15,6 +15,8 @@ What do we need ?
 - the default IP address
 - filenames of all Workers used
 
+- if wasm instead of js : array instead of string
+
  */
 const defaultPort = 8080;
 const defaultIp: Ip = '*';
@@ -29,9 +31,26 @@ const workerdModuleFactory = (name: string, file: string, compatibilityDate: Com
 	compatibilityDate,
 });
 
+const manageModuleType = (module: Module): string =>
+	module.esModule.includes('mjs') || module.esModule.includes('wasm')
+		? moduleWasmCapnpify(module)
+		: moduleCapnpify(module);
+
 const moduleCapnpify = (module: Module): string => `(name = "${module.name}", esModule = embed "${module.esModule}")`;
 
-const moduleListCapnpify = (moduleList: ModuleList): string => `modules = [${moduleList.map(moduleCapnpify).join('')}]`;
+const moduleListCapnpify = (moduleList: ModuleList): string => `modules = [${moduleList.map(manageModuleType).join('')}]`;
+
+/*
+  Modules = [
+    ( name = "entrypoint", esModule = embed "./build/worker/shim.mjs" ),
+    ( name = "./index.wasm", wasm = embed "./build/worker/index.wasm" )
+  ],
+ */
+
+const moduleWasmCapnpify = (module: Module): string =>
+	module.esModule.includes('mjs')
+		? `(name = "${module.name}", esModule = embed "${module.esModule})"`
+		: `(name = "${module.name}", wasm = embed "${module.esModule}")`;
 
 const workerdCapnpify = (workers: WorkerdModule[]): CapnpWorkerNearName[] => {
 	let indice = 0;
@@ -60,7 +79,7 @@ const socketsCapnpify = (capnpWorkerNearName: CapnpWorkerNearName[], defaultPort
 const configCapnpify = (workerCapnpNearNames: CapnpWorkerNearName[], defaultPort: number, defaultIp: Ip) =>
 	`const config :Workerd.Config = (${servicesCapnpify(workerCapnpNearNames)}${socketsCapnpify(workerCapnpNearNames, defaultPort, defaultIp)});`;
 
-const capnpGenerator = (defaultPort: number, defaultIp: Ip, filenames: string[]) => {
+const capnpGenerator = (defaultPort: number, defaultIp: Ip, filenames: any) => {
 	const workers = filenames.map((file: string) => workerdModuleFactory('worker', file, '2023-02-28'));
 
 	const workerCapnpNearNames = workerdCapnpify(workers);
@@ -72,7 +91,9 @@ const capnpGenerator = (defaultPort: number, defaultIp: Ip, filenames: string[])
 	return finalCapnp;
 };
 
-const filenames = Array.from({length: numberOfWorkersToCreate}, () => workerFilename);
+// Const filenames = Array.from({length: numberOfWorkersToCreate}, () => workerFilename);
+
+const filenames = [['index.mjs', 'index.wasm']];
 
 writeFile(filenameCapnpGenerated,
 	capnpGenerator(defaultPort, defaultIp, filenames),
