@@ -14,7 +14,7 @@ const workerGenerator = (file: Filename, nth: number): WorkerType => {
 	const name = `w${nth}`;
 
 	const capnp
-        = `const w${name} :Workerd.Worker = (modules = [${manageModules(file)}],compatibilityDate = "2023-02-28");`;
+        = `const ${name} :Workerd.Worker = (modules = [${manageModules(file)}],compatibilityDate = "2023-02-28");`;
 
 	return {
 		name, capnp,
