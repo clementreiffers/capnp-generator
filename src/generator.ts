@@ -4,8 +4,8 @@ import {writeFile} from 'fs';
 const workerGenerator = (file: Filename, nth: number): WorkerType => {
 	const workerModuleGenerator = (file: string): string =>
 		file.includes('.mjs') || file.includes('.js')
-			? `(name = "w", esModule = embed "${file}")`
-			: `(name = "w", wasm = embed "${file}")`;
+			? `(name = "entrypoint", esModule = embed "${file}")`
+			: `(name = "./index.wasm", wasm = embed "${file}")`;
 
 	const manageModules = (file: Filename) => typeof file === 'string'
 		? workerModuleGenerator(file)
