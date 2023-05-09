@@ -30,10 +30,10 @@ type Config = {
 	sockets: SocketList;
 };
 
-type CapnpWorkerNearName = {name: string; capnp: string};
+type WorkerType = {name: string; capnp: string};
 
 type Filename = string | string[];
 
 type FilenameList = Filename[];
 
-export type {ModuleList, WorkerdModule, CompatibilityDate, Ip, Module, CapnpWorkerNearName, Filename, FilenameList};
+export type {ModuleList, WorkerdModule, CompatibilityDate, Ip, Module, WorkerType, Filename, FilenameList};
