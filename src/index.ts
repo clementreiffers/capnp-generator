@@ -4,7 +4,7 @@ import {writeFile} from 'fs';
 
 const defaultPort = 8080;
 const defaultIp: Ip = '*';
-const filenames: FilenameList = [['index.mjs', 'index.wasm']];
+const filenames: FilenameList = [['./build/worker/shim.mjs', './build/worker/index.wasm']];
 
 const capnp: string = generator(defaultPort, defaultIp, filenames);
 
