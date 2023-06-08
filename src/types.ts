@@ -10,7 +10,7 @@ type Socket = {
 };
 type SocketList = Socket[];
 
-type Module = {name: string;esModule: string};
+type Module = {name: string; esModule: string};
 type ModuleList = Module[];
 
 type OneToNine = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
@@ -32,7 +32,7 @@ type Config = {
 
 type WorkerType = {name: string; capnp: string};
 
-type Filename = string | string[];
+type Filename = string[];
 
 type FilenameList = Filename[];
 

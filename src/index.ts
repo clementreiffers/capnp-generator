@@ -1,17 +1,16 @@
-import {type FilenameList, type Ip} from './types';
+import getAllFilesPathsFromBucket, {createListFiles} from './getAllFilesPathsFromBucket';
+import {andThen, pipeWith, prop} from 'ramda';
 import generator from './generator';
-import {writeFile} from 'fs';
+import {createFileInS3} from './upload';
+import {bucketName, fileName} from './constants';
 
-const defaultPort = 8080;
-const defaultIp: Ip = '*';
+const proceeedGenerationAndUploadCapnp = pipeWith(andThen)([
+	getAllFilesPathsFromBucket(bucketName),
+	prop('Contents'),
+	createListFiles,
+	generator(8080, '*'),
+	createFileInS3(bucketName, fileName),
+]);
 
-// Const filenames: FilenameList = Array.from({length: 800}, () => ['./build/worker/shim.mjs', './build/worker/index.wasm']);
-const filenames: FilenameList = Array.from({length: 2}, () => './build/index.js');
-const capnp: string = generator(defaultPort, defaultIp, filenames);
+const process = proceeedGenerationAndUploadCapnp();
 
-writeFile('my-config.capnp',
-	capnp,
-	err => {
-		console.log(err);
-	},
-);
