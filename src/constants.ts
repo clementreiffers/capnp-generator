@@ -2,4 +2,6 @@ const regexFileAccepted = /\.(js|wasm)$/;
 const bucketName = 'stage-cf-worker';
 const fileName = 'config.capnp';
 
-export {regexFileAccepted, bucketName, fileName};
+const s3Endpoint = 's3.fr-par.scw.cloud';
+
+export {regexFileAccepted, bucketName, fileName, s3Endpoint};

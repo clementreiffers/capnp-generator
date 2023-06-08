@@ -1,4 +1,4 @@
-import {S3} from 'aws-sdk';
+import {type AWSError, S3} from 'aws-sdk';
 import {
 	append,
 	assoc,
@@ -12,17 +12,15 @@ import {
 	pluck,
 	prop,
 	reduce,
-	reject,
+	reject, unnest,
 	splitAt,
 	test,
 	values,
-	zip,
+	zip, concat, tap,
 } from 'ramda';
 import {regexFileAccepted} from './constants';
-
-const s3: S3 = new S3({
-	endpoint: 's3.fr-par.scw.cloud',
-});
+import {type PromiseResult} from 'aws-sdk/lib/request';
+import {type ListObjectsV2Output} from 'aws-sdk/clients/s3';
 
 const convertToStringList = (data: any) => data as string[];
 
@@ -54,13 +52,15 @@ const createListFiles = (contentData: Array<Record<string, any>>): string[][] =>
 		concatPaths,
 	)(contentData);
 
-const getAllFilesPathsFromBucket = (bucketName: string) => async () =>
-	s3.listObjectsV2({
-		// eslint-disable-next-line @typescript-eslint/naming-convention
-		Bucket: bucketName,
-		// eslint-disable-next-line @typescript-eslint/naming-convention
-		Prefix: '',
-	}).promise();
+const initS3Client = (endpoint?: string): S3 => endpoint === undefined ? new S3() : new S3({endpoint});
 
-export default getAllFilesPathsFromBucket;
-export {createListFiles};
+const getAllFilesPathsFromBucket = (bucketName: string, endpoint?: string) =>
+	async (): Promise<PromiseResult<ListObjectsV2Output, AWSError>> =>
+		initS3Client(endpoint).listObjectsV2({
+		// eslint-disable-next-line @typescript-eslint/naming-convention
+			Bucket: bucketName,
+			// eslint-disable-next-line @typescript-eslint/naming-convention
+			Prefix: '',
+		}).promise();
+
+export {createListFiles, getAllFilesPathsFromBucket};
