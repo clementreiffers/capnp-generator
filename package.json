@@ -1,6 +1,6 @@
 {
   "name": "new-capnp-generator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "build/index.js",
   "license": "MIT",
   "dependencies": {
@@ -22,6 +22,6 @@
     "dev": "npx nodemon src/index.ts"
   },
   "bin": {
-    "capg": "build/index.ts"
+    "capg": "./build/index.ts"
   }
 }
