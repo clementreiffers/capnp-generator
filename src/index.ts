@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {getAllFilesPathsFromBucket, createListFiles} from './s3-bucket';
 import {andThen, pipeWith, prop} from 'ramda';
 import generator from './generator';
@@ -8,7 +9,7 @@ import * as fs from 'fs';
 const writeFile = (path: string) => (content: string): void => {
 	fs.writeFile(path, content, err => {
 		if (err) {
-			console.log('error while trying to write capnp');
+			console.log('error while trying to write capnp', err);
 		} else {
 			console.log('capnp writting successful');
 		}
@@ -21,7 +22,7 @@ const generateCapnp = (): void => {
 		prop('Contents'),
 		createListFiles,
 		generator(8080, '*'),
-		writeFile('./'),
+		writeFile('./config.capnp'),
 	// CreateFileInS3(bucketName, fileName),
 	])();
 };
