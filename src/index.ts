@@ -14,27 +14,34 @@ const writeFile = (path: string) => (content: string): void => {
 	});
 };
 
-const generateCapnp = (bucketName: string, s3Endpoint: string): void => {
+const generateCapnp = (bucketName: string, s3Endpoint: string, outFile: string): void => {
 	pipeWith(andThen)([
 		getAllFilesPathsFromBucket(bucketName, s3Endpoint),
 		prop('Contents'),
 		createListFiles,
 		generator(8080, '*'),
-		writeFile('./config.capnp'),
+		writeFile(outFile),
 	// CreateFileInS3(bucketName, fileName),
 	])();
 };
 
-const {bucketName, s3Endpoint} = yargs(process.argv)
-	.option({bucketName: {type: 'string'}, s3Endpoint: {type: 'string'}})
-	.parseSync();
+const isUndefined = (value: any) => typeof value === 'undefined';
 
-console.log(`bucketName: ${bucketName!}, s3Endpoint: ${s3Endpoint!}`);
+const isStringEmpty = (value: string) => value === '';
 
-if (typeof bucketName === 'undefined' || typeof s3Endpoint === 'undefined') {
+const isNotCorrectValue = (value: any) => isUndefined(value) || isStringEmpty(value);
+
+const {bucketName, s3Endpoint, outFile} = yargs(process.argv)
+	.option({
+		bucketName: {type: 'string'},
+		s3Endpoint: {type: 'string'},
+		outFile: {type: 'string'},
+	}).parseSync();
+
+if (isNotCorrectValue(bucketName) || isNotCorrectValue(s3Endpoint) || isNotCorrectValue(outFile)) {
 	console.error('missing --bucketName or --s3Endpoint');
-	exit(1, new Error('missing --bucketName or --s3Endpoint'));
+	exit(1, new Error('missing --bucketName or --s3Endpoint or --outFile'));
 }
 
-generateCapnp(bucketName!, s3Endpoint!);
+generateCapnp(bucketName!, s3Endpoint!, outFile!);
 
