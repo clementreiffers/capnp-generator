@@ -5,7 +5,6 @@ import yargs, {exit} from 'yargs';
 import {andThen, prop, pipeWith} from 'ramda';
 
 const writeFile = (path: string) => (content: string): void => {
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 	fs.writeFile(path, content, err => {
 		if (err) {
 			console.log('error while trying to write capnp', err);
@@ -26,10 +25,11 @@ const generateCapnp = (bucketName: string, s3Endpoint: string): void => {
 	])();
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 const {bucketName, s3Endpoint} = yargs(process.argv)
 	.option({bucketName: {type: 'string'}, s3Endpoint: {type: 'string'}})
 	.parseSync();
+
+console.log(`bucketName: ${bucketName!}, s3Endpoint: ${s3Endpoint!}`);
 
 if (typeof bucketName === 'undefined' || typeof s3Endpoint === 'undefined') {
 	console.error('missing --bucketName or --s3Endpoint');
