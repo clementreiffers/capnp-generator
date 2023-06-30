@@ -54,13 +54,13 @@ const createListFiles = (contentData: Array<Record<string, any>>): string[][] =>
 
 const initS3Client = (endpoint?: string): S3 => endpoint === undefined ? new S3() : new S3({endpoint});
 
-const getAllFilesPathsFromBucket = (bucketName: string, endpoint?: string) =>
+const getAllFilesPathsFromBucket = (bucketName: string, path = './', endpoint?: string) =>
 	async (): Promise<PromiseResult<ListObjectsV2Output, AWSError>> =>
 		initS3Client(endpoint).listObjectsV2({
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 			Bucket: bucketName,
 			// eslint-disable-next-line @typescript-eslint/naming-convention
-			Prefix: '',
+			Prefix: path,
 		}).promise();
 
 export {createListFiles, getAllFilesPathsFromBucket};
